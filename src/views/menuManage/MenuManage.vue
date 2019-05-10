@@ -48,7 +48,13 @@
                             </el-col>
                         </el-row>
                         <el-form-item label="菜单图标">
-                            <el-input v-model="menuFrom.icon" :disabled="!menuIsCreated&&!menuIsEdited"></el-input>
+                            <el-select v-model="menuFrom.icon" placeholder="请选择图标"
+                                       :disabled="!menuIsCreated&&!menuIsEdited">
+                                <el-option :label="Eicons" :value="Eicons" v-for="Eicons in ElementIcon.ElementIcon"></el-option>FontAwesome
+                                <el-option :label="Ficons" :value="Ficons" v-for="Ficons in FontAwesome.FontAwesome"></el-option>
+                            </el-select>
+                            <i :class="menuFrom.icon"></i>
+                            <!--<el-input v-model="menuFrom.icon" :disabled="!menuIsCreated&&!menuIsEdited"></el-input>-->
                         </el-form-item>
                         <el-row :span="14">
                             <el-col :span="8">
@@ -153,7 +159,8 @@
 <script>
     import {getAllMenus, getPathByMenuId} from '../../api/auth'
     import {saveMenus, savePath} from '../../api/menus'
-
+    import ElementIcon from '../icon/ElementIcon';
+    import FontAwesome from '../icon/FontAwesome';
     export default {
         name: "MenuManage",
         data() {
@@ -165,6 +172,8 @@
                 pathIsCreated: false,
                 allMenus: [],//系统内的所有菜单
                 pathByMenuId: [],//
+                ElementIcon:ElementIcon,
+                FontAwesome:FontAwesome,
                 //菜单form
                 menuFrom: {
                     id: 0,

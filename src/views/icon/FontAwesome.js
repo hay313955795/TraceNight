@@ -1,5 +1,5 @@
 export default {
-  "50 New Icons in 4.7": [
+  "FontAwesome": [
     'address-book', 'address-book-o', 'address-card', 'address-card-o', 'bandcamp',
     'bath', 'bathtub', 'drivers-license', 'drivers-license-o', 'eercast', 'envelope-open', 'envelope-open-o', 'etsy',
     'free-code-camp', 'grav', 'handshake-o', 'id-badge', 'id-card', 'id-card-o', 'imdb', 'linode', 'meetup', 'microchip',
