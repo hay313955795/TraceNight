@@ -7,7 +7,7 @@
                         placeholder="请输入用户昵称！"
                         size="small"
                         style="width: 140px"
-                        v-model="params.name"
+                        v-model="search.name"
                         @clear="searchUser"
                         clearable>
                 </el-input>
@@ -76,28 +76,28 @@
         </el-pagination>
 
 
-        <el-dialog :title="title" :visible.sync="dialogFormVisible">
-            <el-form :model="form" :rules="rules" ref="form" label-width="100px">
+        <el-dialog :title="title" :visible.sync="userEditIsShow">
+            <el-form :model="userForm" :rules="rules" ref="userForm" label-width="100px">
                 <el-form-item label="昵称" prop="nickName">
-                    <el-input v-model="form.nickName" placeholder="请输入昵称"></el-input>
+                    <el-input v-model="userForm.nickName" placeholder="请输入昵称"></el-input>
                 </el-form-item>
                 <el-form-item label="账户" prop="userName">
-                    <el-input v-model="form.userName" placeholder="请输入账户"></el-input>
+                    <el-input v-model="userForm.userName" placeholder="请输入账户"></el-input>
                 </el-form-item>
-                <el-form-item label="密码" v-if="isCreate" placeholder="请输入密码" prop="password">
-                    <el-input type="password" v-model="form.password"></el-input>
+                <el-form-item label="密码" v-if="isUserCreate" placeholder="请输入密码" prop="password">
+                    <el-input type="password" v-model="userForm.password"></el-input>
                 </el-form-item>
                 <el-form-item label="描述">
                     <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 5}" placeholder="请输入内容"
-                              v-model="form.introduce"></el-input>
+                              v-model="userForm.introduce"></el-input>
                 </el-form-item>
                 <el-form-item label="帐号状态">
-                    <el-switch v-model="form.status"></el-switch>
+                    <el-switch v-model="userForm.status"></el-switch>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
-                <el-button @click="cancel('form')">取 消</el-button>
-                <el-button type="primary" @click="save('form')">确 定</el-button>
+                <el-button @click="cancel('userForm')">取 消</el-button>
+                <el-button type="primary" @click="save()">确 定</el-button>
             </div>
         </el-dialog>
 
@@ -153,13 +153,13 @@
                         }
                     ]
                 },
-                params: {
+                search: {
                     name: '',
                 },
                 title: '',
-                dialogFormVisible: false,
-                isCreate: true,
-                form: {
+                userEditIsShow: false,
+                isUserCreate: true,
+                userForm: {
                     id: 0,
                     userName: '',
                     password: '',
@@ -189,21 +189,21 @@
             },
             searchUser(param) {
                 this.usersData.current_page = 1;
-                param = this.params.name + "&page=" + this.usersData.current_page + "&limit=" + this.usersData.page_size;
+                param = this.search.name + "&page=" + this.usersData.current_page + "&limit=" + this.usersData.page_size;
                 this.getUser(param)
             },
             handleSizeChange(size) {
                 this.usersData.current_page = 1;
                 this.usersData.page_size = size;
                 //size 发生变化时候
-                let param = this.params.name + "&page=" + this.usersData.current_page + "&limit=" + this.usersData.page_size;
+                let param = this.search.name + "&page=" + this.usersData.current_page + "&limit=" + this.usersData.page_size;
 
                 this.getUser(param);
             },
             handleCurrentChange(page) {
                 //size 发生变化时候
                 this.usersData.current_page = page;
-                let param = this.params.name + "&page=" + this.usersData.current_page + "&limit=" + this.usersData.page_size;
+                let param = this.search.name + "&page=" + this.usersData.current_page + "&limit=" + this.usersData.page_size;
                 this.getUser(param);
             },
             tableAction() {
@@ -215,33 +215,31 @@
             },
             editUser(data) {
                 if (!data) {
-                    this.form = {};
-                    this.isCreate = true;
+                    this.userForm = {};
+                    this.isUserCreate = true;
                     this.title = '用户新增';
-                    this.dialogFormVisible = true;
                 } else {
-                    this.isCreate = false;
-                    this.form = data;
+                    this.isUserCreate = false;
+                    this.userForm = data;
                     this.title = '用户编辑';
-                    this.dialogFormVisible = true;
                 }
+                this.userEditIsShow = true;
             },
             cancel(formName) {
                 this.$message({
                     message: '用户取消编辑',
                     type: 'success'
                 });
-                this.dialogFormVisible = false;
+                this.userEditIsShow = false;
             },
-            save(formName) {
-                console.log("111");
+            save() {
                 let userFrom = this.form;
                 saveUser(userFrom).then(r => {
                     this.$message({
                         message: r.message,
                         type: 'success'
                     });
-                    this.dialogFormVisible = false;
+                    this.userEditIsShow = false;
                 }).catch()
             },
             deleteUser(id) {

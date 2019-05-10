@@ -1,13 +1,13 @@
 <template>
     <div class="role-list">
         <ToolBar>
-            <el-button type="primary" icon="el-icon-plus" size="small" @click="editRole(false)">添加</el-button>
+            <el-button type="primary" icon="el-icon-plus" size="small" @click="beforeEdit(false)">添加</el-button>
             <div style="float: right">
                 <el-input
                         placeholder="请输入角色名称！"
                         size="small"
                         style="width: 140px"
-                        v-model="params.name"
+                        v-model="search.name"
                         @clear="searchRole"
                         clearable>
                 </el-input>
@@ -17,7 +17,7 @@
         <el-table
                 :data="roleData.data"
                 border
-                ref="table"
+                ref="roleDataTable"
                 style="width: 100%">
             <el-table-column
                     header-align="center"
@@ -44,12 +44,12 @@
                     :render-header="tableAction"
                     width="300">
                 <template slot-scope="scope">
-                    <el-button @click="editRole(scope.row)" type="warning" icon="el-icon-edit" size="small"
+                    <el-button @click="beforeEdit(scope.row)" type="warning" icon="el-icon-edit" size="small"
                                circle></el-button>
-                    <el-button @click="currentEditPermissions = scope.row" type="success" icon="el-icon-star-on"
+                    <el-button @click="allotUser = scope.row" type="success" icon="el-icon-star-on"
                                size="small"
                                circle></el-button>
-                    <el-button @click="MenuPermissionsEditRole = scope.row" type="primary" icon="el-icon-tickets"
+                    <el-button @click="MenuAndPathPermission = scope.row" type="primary" icon="el-icon-tickets"
                                size="small"
                                circle></el-button>
                     <el-button @click="deleteRole(scope.row.id)" title="删除角色组"
@@ -69,24 +69,24 @@
 
         <RoleEdit
                 :title="roleEditTitle"
-                :dialogFormVisible="dialogFormVisible"
-                :data="currentEditRole"
+                :dialogFormVisible="roleEditShow"
+                :data="chooseRole"
                 @val-change="roleEditChange"
-                @cancel="dialogFormVisible = false"
+                @cancel="roleEditShow = false"
         >
         </RoleEdit>
-        <PermissionsEdit
-                :role="currentEditPermissions"
-                @success="currentEditPermissions = false;"
-                @cancel="currentEditPermissions = false;"
-        ></PermissionsEdit>
+        <AllotUserEdit
+                :role="allotUser"
+                @success="allotUser = false;"
+                @cancel="allotUser = false;"
+        ></AllotUserEdit>
 
-        <MenuPermissionsEdit
-                :role="MenuPermissionsEditRole"
-                :dialogFormVisible="MenuPermissionsDialogFormVisible"
-                @cancel="MenuPermissionsEditRole = false"
+        <MenuAndPathPermissionsEdit
+                :role="MenuAndPathPermission"
+                :dialogFormVisible="MenuAndPathPermissionShow"
+                @cancel="MenuAndPathPermission = false"
         >
-        </MenuPermissionsEdit>
+        </MenuAndPathPermissionsEdit>
 
     </div>
 </template>
@@ -95,19 +95,20 @@
     import ToolBar from '@/components/ToolBar.vue';
     import HelpHint from '@/components/HelpHint.vue';
     import RoleEdit from './RoleEdit.vue'
-    import PermissionsEdit from './PermissionsEdit.vue'
-    import MenuPermissionsEdit from './MenuPermissionsEdit.vue'
+    import AllotUserEdit from './AllotUserEdit.vue'
+    import MenuAndPathPermissionsEdit from './MenuAndPathPermissionsEdit.vue'
     import {getRoleInfo, saveRoleInfo, deleteRole} from '../../../api/role'
+
     export default {
         data() {
             return {
                 roleEditTitle: '角色编辑',
-                currentEditRole: false,
-                MenuPermissionsEditRole:false,
-                dialogFormVisible: false,
-                currentEditPermissions: false,
-                MenuPermissionsDialogFormVisible:false,
-                params: {
+                chooseRole: false,
+                MenuAndPathPermission: false,
+                roleEditShow: false,
+                allotUser: false,
+                MenuAndPathPermissionShow: false,
+                search: {
                     name: '',
                 },
                 roleData: {
@@ -130,23 +131,23 @@
                     }
                 }).catch()
             },
-            searchRole(param) {
+            searchRole() {
                 this.roleData.current_page = 1;
-                param = this.params.name + "&page=" + this.roleData.current_page + "&limit=" + this.roleData.page_size;
+                let param = this.search.name + "&page=" + this.roleData.current_page + "&limit=" + this.roleData.page_size;
                 this.getRole(param)
             },
             handleSizeChange(size) {
                 this.roleData.current_page = 1;
                 this.roleData.page_size = size;
                 //size 发生变化时候
-                let param = this.params.name + "&page=" + this.roleData.current_page + "&limit=" + this.roleData.page_size;
+                let param = this.search.name + "&page=" + this.roleData.current_page + "&limit=" + this.roleData.page_size;
 
                 this.getRole(param);
             },
             handleCurrentChange(page) {
                 //size 发生变化时候
                 this.roleData.current_page = page;
-                let param = this.params.name + "&page=" + this.roleData.current_page + "&limit=" + this.roleData.page_size;
+                let param = this.search.name + "&page=" + this.roleData.current_page + "&limit=" + this.roleData.page_size;
                 this.getRole(param);
             },
             tableAction() {
@@ -157,7 +158,6 @@
                 }, '操作');
             },
             roleEditChange(data) {
-                console.log(data);
                 let self = this;
                 saveRoleInfo(data).then(r => {
                     if (r.rel) {
@@ -167,23 +167,19 @@
                             type: 'success'
                         });
                         this.searchRole("");
-                        self.dialogFormVisible = false;
+                        self.roleEditShow = false;
                     }
                 }).catch();
             },
-            editRole(data) {
-                console.log(data);
+            beforeEdit(data) {
                 if (data) {
                     this.roleEditTitle = '角色编辑';
-                    this.currentEditRole = data;
+                    this.chooseRole = data;
                 } else {
                     this.roleEditTitle = '角色新增';
-                    this.currentEditRole = false;
+                    this.chooseRole = false;
                 }
-                this.dialogFormVisible = true;
-
-            },
-            UploadRole(data) {
+                this.roleEditShow = true;
 
             },
             deleteRole(id) {
@@ -202,7 +198,7 @@
             },
         },
         components: {
-            ToolBar, HelpHint, RoleEdit, PermissionsEdit,MenuPermissionsEdit
+            ToolBar, HelpHint, RoleEdit, AllotUserEdit, MenuAndPathPermissionsEdit
         }
     }
 </script>

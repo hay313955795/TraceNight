@@ -10,41 +10,49 @@
                             show-checkbox
                             node-key="id"
                             :props="defaultProps"
-                            @node-click="handleNodeClick"
-                            @check="checkNodeIsCheck"
+                            @node-click="menuNodeClick"
+                            @check="menuNodeIsCheck"
+                            style="   border:#fff1ea;border-radius: 10px;margin-right: 15px ;box-shadow:4px 4px 10px #000;"
                     >
                     </el-tree>
                 </el-col>
                 <el-col :span="18">
-                    <el-table
-                            ref="multipleTable"
-                            border
-                            :data="pathByMenuId"
-                            tooltip-effect="dark"
-                            style="width: 100%"
-                            @select="changeOne"
-                            @select-all="changeFun">
-                        <!--@selection-change="handleSelectionChange">-->
-                        <el-table-column
-                                type="selection"
-                                width="55">
-                        </el-table-column>
-                        <el-table-column
-                                prop="name"
-                                label="路径名称"
-                                width="120">
-                        </el-table-column>
-                        <el-table-column
-                                prop="url"
-                                label="路径地址"
-                                width="320">
-                        </el-table-column>
-                        <el-table-column
-                                prop="method"
-                                label="请求方式"
-                                show-overflow-tooltip>
-                        </el-table-column>
-                    </el-table>
+                    <div style="  border:#fff1ea;border-radius: 10px;margin-right: 15px ; box-shadow:4px 4px 10px #000;">
+                        <el-table
+                                ref="pathByMenuId"
+                                border
+                                :data="pathByMenuId"
+                                tooltip-effect="dark"
+                                style="width: 100%"
+                                @select="pathIsCheck"
+                                @select-all="pathIsAllCheck">
+                            <!--@selection-change="handleSelectionChange">-->
+                            <el-table-column
+                                    align="center"
+                                    header-align="center"
+                                    type="selection"
+                                    width="55">
+                            </el-table-column>
+                            <el-table-column
+                                    header-align="center"
+                                    prop="name"
+                                    label="路径名称"
+                                    width="200">
+                            </el-table-column>
+                            <el-table-column
+                                    header-align="center"
+                                    prop="url"
+                                    label="路径地址"
+                                    width="320">
+                            </el-table-column>
+                            <el-table-column
+                                    header-align="center"
+                                    prop="method"
+                                    label="请求方式"
+                                    show-overflow-tooltip>
+                            </el-table-column>
+                        </el-table>
+                    </div>
                 </el-col>
             </el-row>
 
@@ -59,7 +67,7 @@
     import {getAllMenus, getPermissions, addPermissions, removePermissions, getPathByMenuId} from '../../../api/auth'
 
     export default {
-        name: 'MenuPermissionsEdit',
+        name: 'MenuAndPathPermissionsEdit',
         props: {
             role: [Object, Boolean],
         },
@@ -83,7 +91,6 @@
                     if (!self.role) {
                         return;
                     }
-                    console.log(self.role);
                     self.dialogFormVisible = true;
                     this.findPermissions(self.role.id)
                 }
@@ -114,29 +121,24 @@
                     }
                 }).catch()
             },
-            handleNodeClick(node) {
+            menuNodeClick(node) {
                 //当菜单节点被点击的时候回调函数
                 getPathByMenuId(node.id).then(r => {
                     if (r.rel) {
                         this.pathByMenuId = r.data;
                         this.$nextTick(function () {
-                            if (this.pathPermission.length > 0) {
-                                this.pathByMenuId.forEach((path, index) => {
-                                    if (this.pathPermission.indexOf(path.id) >= 0) {
-                                        console.log('匹配上的权限');
-                                        this.$refs.multipleTable.toggleRowSelection(this.pathByMenuId[index], true);
-                                    } else {
-                                        this.$refs.multipleTable.toggleRowSelection(this.pathByMenuId[index], false);
-                                    }
-                                });
-                            } else {
-                                this.$refs.multipleTable.clearSelection();
-                            }
+                            this.$refs.pathByMenuId.clearSelection();
+                            this.pathByMenuId.forEach((path, index) => {
+                                if (this.pathPermission.indexOf(path.id) >= 0) {
+                                    this.$refs.pathByMenuId.toggleRowSelection(this.pathByMenuId[index], true);
+                                }
+                            });
+
                         });
                     }
                 }).catch();
             },
-            checkNodeIsCheck(checkedNodes, checkedKeys) {
+            menuNodeIsCheck(checkedNodes, checkedKeys) {
                 let self = this;
                 let idList = [];
 
@@ -146,14 +148,17 @@
                         idList.push(node.id);
                     })
                 }
+
+
                 let removeId = [];
                 let addId = [];
+
                 idList.forEach(key => {
                     if (checkedKeys.checkedKeys.indexOf(key) < 0) {
                         //该id是被移除的id
                         removeId.push(key);
                     }
-                    if (checkedKeys.checkedKeys.indexOf(key) >= 0) {
+                    else {
                         addId.push(key);
                     }
                 });
@@ -183,7 +188,7 @@
                     addPermissions(rolePermission).then().catch()
                 }
             },
-            changeOne(selection, row) {
+            pathIsCheck(selection, row) {
                 let flag = true;
                 let self = this;
                 let rolePermission = [];
@@ -205,7 +210,7 @@
                     removePermissions(rolePermission).then().catch()
                 }
             },
-            changeFun(val) {
+            pathIsAllCheck(val) {
                 let self = this;
                 let rolePermission = [];
                 if (val.length > 0) {
@@ -241,6 +246,5 @@
 </script>
 <style lang="scss">
     .role-dialog {
-
     }
 </style>
