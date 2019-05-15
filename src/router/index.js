@@ -95,6 +95,15 @@ let RouteList = [
                 },
                 component: resolve => require(['@/views/menuManage/MenuManage.vue'], resolve),
             },
+            {
+                path: '/yh_metal',
+                name: 'yhMetal',
+                meta: {
+                    title: '五金数据管理',
+                    keepAlive: true
+                },
+                component: resolve => require(['@/views/metalManage/Index.vue'], resolve),
+            },
             //个人中心，可能有修改密码，头像修改等路由
             Personal.index,
         ]

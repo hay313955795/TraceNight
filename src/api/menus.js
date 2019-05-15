@@ -10,7 +10,7 @@ export function getAuthMenus() {
 
 export function saveMenus(param) {
     return request({
-        url: '/admin/menuManage/edit',
+        url: '/admin/menuManage/saveMenu',
         method: 'post',
         data:param,
         headers: {'Content-Type': 'application/json'},

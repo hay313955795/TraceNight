@@ -13,6 +13,13 @@ Vue.use(ElementUI);
 router.beforeEach((to, from, next) => {
   window.document.title = to.meta.title?to.meta.title+'-'+Config.siteName:Config.siteName;
 
+  console.log(to.path);
+  console.log(isLogin());
+  if (to.path === '/login'&& isLogin() ) {
+    console.log(isLogin());
+    next({path: '/'});
+  }
+
   if (!isLogin() && to.path != '/login') {
     next({path: '/login'});
   } else {
