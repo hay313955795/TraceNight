@@ -25,3 +25,13 @@ export  function deleteProductById(id){
         headers: {'Content-Type': 'application/json'},
     })
 }
+
+
+export  function saveProduct(params){
+    return request({
+        url:'/admin/metalManage/saveProduct/',
+        method:'post',
+        headers: {'Content-Type': 'application/json'},
+        data: params
+    })
+}
